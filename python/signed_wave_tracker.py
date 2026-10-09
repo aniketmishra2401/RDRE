@@ -35,7 +35,24 @@ class SignedReversalHMM:
         for i in range(self.n_states):
             rem_prob = (1.0 - np.sum(self.A[i, :])) / (self.n_states - 1)
             self.A[i, :] += rem_prob
-            
+
+        # Nominal-direction (CCW, +) prior. At N*dtheta = 180 deg (W3 with 60 deg
+        # spacing) +N and -N produce the same measured phase, so the sign is NOT
+        # observable from this sensor pair and the emissions tie. Because the
+        # tie also lets the decoder place a direction reversal on either side of
+        # the ambiguous segment at equal cost, a symmetric flip penalty cannot
+        # resolve it. Instead, entering a negative-direction state is made
+        # slightly less likely than entering a positive one, so ambiguous
+        # segments default to the nominal CCW direction. The 0.7 factor
+        # (~0.36 nats) is small enough that clear evidence (a real reversal at
+        # W1/W2, where phase is unambiguous) still overrides it.
+        negative_states = [4, 6, 8]
+        for i in range(self.n_states):
+            for j in negative_states:
+                if i != j:
+                    self.A[i, j] *= 0.7
+        self.A /= self.A.sum(axis=1, keepdims=True)
+
         self.pi = np.ones(self.n_states) / self.n_states
 
     def decode_viterbi_log_B(self, emission_log_B: np.ndarray) -> np.ndarray:

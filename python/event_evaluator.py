@@ -5,7 +5,8 @@ def evaluate_event_metrics(
     gt_labels: np.ndarray,
     pred_labels: np.ndarray,
     tolerance_sec: float = 0.001,     # ±1 ms window for valid transition match
-    search_window_sec: float = 0.005   # 5 ms max search window for latency
+    search_window_sec: float = 0.005,  # 5 ms max search window for latency
+    warmup_sec: float = 0.0            # Ignore predicted events during filter settling
 ) -> dict:
     """
     Evaluates state-transition performance using event-matching logic.
@@ -16,7 +17,12 @@ def evaluate_event_metrics(
         pred_labels       : Predicted state sequence from HMM/tracker
         tolerance_sec     : Match window around true transition for FAR check
         search_window_sec : Max allowed latency window before marking as missed
-        
+        warmup_sec        : Predicted transitions earlier than t_frames[0] + warmup_sec
+                            are ignored. The causal wavelet bank starts from a
+                            zero-padded edge, so its output is not valid until it
+                            has seen enough samples; those start-up transitions
+                            are filter settling, not detector decisions.
+
     Returns:
         results           : Dictionary containing FAR (events/s), mean latency (ms),
                             missed transitions, and total runtime duration.
@@ -28,8 +34,12 @@ def evaluate_event_metrics(
     pred_change_indices = np.where(pred_labels[1:] != pred_labels[:-1])[0] + 1
     
     gt_events = [(t_frames[idx], gt_labels[idx]) for idx in gt_change_indices]
-    pred_events = [(t_frames[idx], pred_labels[idx]) for idx in pred_change_indices]
-    
+    pred_events = [
+        (t_frames[idx], pred_labels[idx])
+        for idx in pred_change_indices
+        if t_frames[idx] - t_frames[0] >= warmup_sec
+    ]
+
     matched_pred_indices = set()
     latencies = []
     missed_gt_count = 0

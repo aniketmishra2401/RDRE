@@ -71,10 +71,16 @@ class ExpandedStateObservationEngine:
         log_B[9] = -15.0
 
         # 5. Detonation Wave States (W1+, W1-, W2+, W2-, W3+, W3-)
+        # The measured inter-sensor phase is circular, so the error against each
+        # hypothesis must be wrapped to (-pi, pi]. A linear error on n_cont breaks
+        # at N = +/-3 with 60 deg spacing: N*dtheta = 180 deg sits exactly on the
+        # +/-pi wrap, so the measured phase flips sign from frame to frame.
         target_N = [None, None, None, +1, -1, +2, -2, +3, -3, None]
         for idx in range(3, 9):
             target = target_N[idx]
-            err = (n_cont - target) ** 2
+            phase_err = phi12_rad - target * self.delta_theta_rad
+            phase_err = np.arctan2(np.sin(phase_err), np.cos(phase_err))
+            err = (phase_err / self.delta_theta_rad) ** 2
             log_B[idx] = -0.5 * (err / 0.5)
 
         return log_B

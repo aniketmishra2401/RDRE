@@ -93,8 +93,9 @@ def run_full_rdre_pipeline():
         t_frames=t_frames, 
         gt_labels=gt_frame_labels, 
         pred_labels=pred_N_labels,
-        tolerance_sec=0.001, 
-        search_window_sec=0.005
+        tolerance_sec=0.001,
+        search_window_sec=0.005,
+        warmup_sec=0.002  # lowest CWT channel (2 kHz) needs ~1 ms to settle
     )
 
     print("\n--- TESTBENCH RESULTS ---")
