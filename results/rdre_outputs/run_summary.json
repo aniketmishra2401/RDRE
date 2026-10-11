@@ -1,0 +1,39 @@
+{
+  "evidence_type": "synthetic software benchmark; not experimental combustion data",
+  "sampling_rate_hz": 10000000.0,
+  "target_sampling_rate_hz": 200000.0,
+  "sensor_separation_deg": 60.0,
+  "configured_snr_db": 15.0,
+  "metrics_note": "Metrics use the current event_evaluator implementation and should be treated as preliminary until evaluator corrections are applied.",
+  "metrics": {
+    "Total Test Duration (s)": 0.2,
+    "True Transition Events": 4,
+    "Matched Transitions": 4,
+    "Missed Transitions": 0,
+    "False Alarm Events": 0,
+    "FAR (events/s)": 0.0,
+    "Mean Latency (ms)": 0.515,
+    "Max Latency (ms)": 0.765
+  },
+  "figures": [
+    "fig01_architecture.png/.pdf",
+    "fig02_dual_sensor_input.png/.pdf",
+    "fig03_time_frequency_phase.png/.pdf",
+    "fig04_state_comparison.png/.pdf",
+    "fig05_full_state_timeline.png/.pdf",
+    "fig06_event_counts.png/.pdf"
+  ],
+  "figure_review_update": {
+    "status": "figures 2-6 regenerated with improved readability using supplied CSV outputs",
+    "notes": [
+      "FIG. 2 now separates overview and transition zooms.",
+      "FIG. 3 clarifies that continuous wave-count proxy is derived and not an independent measurement.",
+      "FIG. 4 includes a frame-level mismatch panel.",
+      "FIG. 5 displays all ten predicted state labels alongside the signed-label reference.",
+      "FIG. 6 explicitly marks event counts as preliminary."
+    ],
+    "frame_level_signed_label_agreement_fraction": 0.9852,
+    "mismatched_frames": 592,
+    "important_limit": "These are synthetic benchmark outputs. The original source code was not included in the uploaded rdre_outputs.zip, so the event evaluator itself has not been corrected in this package."
+  }
+}

@@ -6,6 +6,7 @@ from scale_free_acoustic_refinement import ScaleFreeAcousticDiscriminator
 from signed_wave_tracker import decompose_co_counter_waves, SignedReversalHMM
 from sensor_calib_and_expanded_nodet import SensorDelayCalibrator, ExpandedStateObservationEngine
 from event_evaluator import evaluate_event_metrics
+from reporting import generate_report
 
 def apply_state_hysteresis(state_seq: np.ndarray, min_hold_frames: int = 15) -> np.ndarray:
     """Holds a state transition for at least min_hold_frames (75 μs) to reject transient glitches."""
@@ -101,6 +102,29 @@ def run_full_rdre_pipeline():
     print("\n--- TESTBENCH RESULTS ---")
     for metric_name, value in metrics.items():
         print(f"  {metric_name}: {value}")
+
+    print("\n=== 6. Generating Patent/Engineering Figures ===")
+    generate_report(
+        outdir="rdre_outputs",
+        t_raw=t,
+        sig1_raw=sig1_raw,
+        sig2_raw=sig2_raw,
+        gt_raw=gt_labels,
+        freqs=freqs,
+        t_frames=t_frames,
+        z1_flat=Z1_flat,
+        n_cont=n_cont,
+        phase=smooth_phi12,
+        frame_power=frame_power,
+        gt_frame=gt_frame_labels,
+        pred_state_indices=smoothed_path_indices,
+        pred_n_labels=pred_N_labels,
+        metrics=metrics,
+        fs=fs,
+        target_fs=target_fs,
+        delta_theta_deg=delta_theta_deg,
+        snr_db=15.0,
+    )
 
 if __name__ == "__main__":
     run_full_rdre_pipeline()
